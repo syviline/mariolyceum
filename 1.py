@@ -106,11 +106,6 @@ def terminate():
 
 
 def start_screen():
-    intro_text = ["ЗАСТАВКА", "",
-                  "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
-
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
@@ -126,8 +121,14 @@ def start_screen():
         pygame.display.flip()
         clock.tick(FPS)
 
+level = input('Введите название карты: ')
+try:
+    player, level_x, level_y = generate_level(load_level(level))
+except FileNotFoundError:
+    print('Файл не найден')
+except Exception as e:
+    print('Произошла непредвиденная ошибка: ' + str(e))
 start_screen()
-player, level_x, level_y = generate_level(load_level('map.txt'))
 while running:
     screen.fill((0, 0, 0))
     for event in pygame.event.get():
