@@ -165,9 +165,9 @@ while running:
                 player.move(0, 1)
             if event.key == pygame.K_a:
                 player.move(-1, 0)
-    tiles_group.draw(screen)
-    player_group.draw(screen)
     camera.update(player)
     for sprite in all_sprites:
         camera.apply(sprite)
+    tiles_group.draw(screen)
+    player_group.draw(screen)
     pygame.display.flip()
