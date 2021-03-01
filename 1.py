@@ -78,6 +78,10 @@ class Player(pygame.sprite.Sprite):
             tile_width * pos_x + 15, tile_height * pos_y + 5)
 
     def move(self, dir_x, dir_y):
+        if self.rect.x + dir_x * tile_width < 0 or self.rect.y + dir_y * tile_height < 0:
+            return
+        if self.rect.x + dir_x * tile_width > WIDTH or self.rect.y + dir_y * tile_height > HEIGHT:
+            return
         self.rect.x += dir_x * tile_width
         self.rect.y += dir_y * tile_height
         if pygame.sprite.spritecollideany(self, collideable):
