@@ -7,6 +7,9 @@ FPS = 50
 
 running = True
 
+xwidth = 11
+ywidth = 11
+
 pygame.init()
 size = WIDTH, HEIGHT = 500, 500
 screen = pygame.display.set_mode(size)
@@ -94,15 +97,26 @@ class Player(pygame.sprite.Sprite):
             tile_width * pos_x + 15, tile_height * pos_y + 5)
 
     def move(self, dir_x, dir_y):
-        if self.rect.x + dir_x * tile_width < 0 or self.rect.y + dir_y * tile_height < 0:
-            return
-        if self.rect.x + dir_x * tile_width > WIDTH or self.rect.y + dir_y * tile_height > HEIGHT:
-            return
+        self.pos_x += dir_x
+        self.pos_y += dir_y
         self.rect.x += dir_x * tile_width
         self.rect.y += dir_y * tile_height
         if pygame.sprite.spritecollideany(self, collideable):
             self.rect.x -= dir_x * tile_width
             self.rect.y -= dir_y * tile_height
+            self.pos_x -= dir_x
+            self.pos_y -= dir_y
+
+def generate_more_tiles(px, py, level):
+    print("GEN TILES: " + str(px) + " " + str(py))
+    for y in range(len(level)):
+        for x in range(len(level[y])):
+            if level[y][x] == '.':
+                Tile('empty', x + px * xwidth, y + py * ywidth)
+            elif level[y][x] == '#':
+                Tile('wall', x + px * xwidth, y + py * ywidth)
+            elif level[y][x] == "@":
+                Tile('empty', x + px * xwidth, y + py * ywidth)
 
 
 def generate_level(level):
@@ -142,14 +156,21 @@ def start_screen():
         clock.tick(FPS)
 
 level = input('Введите название карты: ')
+# level = 'map.txt'
+levelmap = load_level(level)
 try:
-    player, level_x, level_y = generate_level(load_level(level))
+    player, level_x, level_y = generate_level(levelmap)
 except FileNotFoundError:
     print('Файл не найден')
 except Exception as e:
     print('Произошла непредвиденная ошибка: ' + str(e))
 start_screen()
 camera = Camera()
+for x in range(-1, 1):
+    for y in range(-1, 1):
+        generate_more_tiles(x, y, levelmap)
+minseey = 5
+mingeneratedy = 0
 while running:
     screen.fill((0, 0, 0))
     for event in pygame.event.get():
@@ -165,9 +186,19 @@ while running:
                 player.move(0, 1)
             if event.key == pygame.K_a:
                 player.move(-1, 0)
-    tiles_group.draw(screen)
-    player_group.draw(screen)
+    print(player.pos_x, player.pos_y)
+    if player.pos_y <= -7:
+        player.move(0, 11)
+    if player.pos_y >= 6:
+        player.move(0, -11)
+    if player.pos_x <= -7:
+        player.move(11, 0)
+    if player.pos_x >= 6:
+        player.move(-11, 0)
     camera.update(player)
     for sprite in all_sprites:
         camera.apply(sprite)
+    tiles_group.draw(screen)
+    player_group.draw(screen)
     pygame.display.flip()
+    clock.tick(FPS)
