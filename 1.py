@@ -57,6 +57,22 @@ all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
 
+class Camera:
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - WIDTH // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - HEIGHT // 2)
+
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
         if tile_type == 'wall':
@@ -133,6 +149,7 @@ except FileNotFoundError:
 except Exception as e:
     print('Произошла непредвиденная ошибка: ' + str(e))
 start_screen()
+camera = Camera()
 while running:
     screen.fill((0, 0, 0))
     for event in pygame.event.get():
@@ -150,4 +167,7 @@ while running:
                 player.move(-1, 0)
     tiles_group.draw(screen)
     player_group.draw(screen)
+    camera.update(player)
+    for sprite in all_sprites:
+        camera.apply(sprite)
     pygame.display.flip()
